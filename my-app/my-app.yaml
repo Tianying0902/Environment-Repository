@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: my-app-container
-          image: aimee0323/my-todolist:5d4c6cdd473591a972ee58be5febef141c7cf989
+          image: aimee0323/my-todolist:latest
           ports:
             - containerPort: 8080
