@@ -1,4 +1,4 @@
 appName: my-app
 image:
   name: aimee0323/my-todolist
-  tag: latest
+  tag: 5d4c6cdd473591a972ee58be5febef141c7cf989
