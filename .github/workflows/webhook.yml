@@ -1,0 +1,31 @@
+name: Update Helm Chart on Docker Hub Image Push
+
+on:
+  repository_dispatch: # 添加自定义事件触发条件
+    types: # 添加自定义事件类型
+      - update_chart
+
+jobs:
+  update-chart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Update Chart on Image Push
+        env:
+          DOCKER_HUB_TAG: ${{ github.event.client_payload.tag }} # 获取Webhook传递的tag
+        run: |
+          # 提取Docker Hub推送的tag，该tag即为image tag
+          TAG=${DOCKER_HUB_TAG}
+
+          # 使用Helm命令更新Chart文件中的image tag
+          helm chart list # 确保helm已经初始化过
+          helm chart pull <chart_name> # 替换为您的chart名称
+          helm chart export <chart_name>:<chart_version> <export_path> # 替换为您的chart名称和版本
+          sed -i "s|image:.*|image: your-image-repo/your-image-name:${TAG}|" <export_path>/values.yaml
+
+          # 提交更新后的Chart文件
+          git add <export_path>/values.yaml
+          git commit -m "Update image tag to ${TAG}"
+          git push
