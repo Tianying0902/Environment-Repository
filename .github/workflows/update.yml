@@ -1,0 +1,34 @@
+name: Update Helm Chart
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  update-chart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get latest Docker image tag
+        id: get_latest_tag
+        run: |
+          # 获取最新的Docker镜像tag
+          LATEST_TAG=$(curl -s "https://registry.hub.docker.com/v2/repositories/aimee0323/my-todolist/tags/" | jq -r '.results[0].name')
+
+          # 将获取到的最新tag输出到变量中
+          echo "::set-output name=latest_tag::$LATEST_TAG"
+
+      - name: Update Chart
+        env:
+          LATEST_TAG: ${{ steps.get_latest_tag.outputs.latest_tag }}
+        run: |
+          # 使用sed命令将Helm Chart的values.yaml文件中的占位符替换为最新tag
+          sed -i "s|{{ IMAGE_TAG }}|${LATEST_TAG}|" path/to/your/chart/values.yaml
+
+          # 提交更新后的Chart文件
+          git add path/to/your/chart/values.yaml
+          git commit -m "Update image tag to ${LATEST_TAG}"
+          git push
